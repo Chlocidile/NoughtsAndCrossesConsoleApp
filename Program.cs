@@ -6,6 +6,12 @@ namespace NoughtsAndCrossesConsoleApp
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Enter your name Player One");
+            var playerOneName = Console.ReadLine();
+            Console.WriteLine("Enter your name Player Tne");
+            var playerTwoName = Console.ReadLine();
+            var playerOne= new Player(playerOneName,(GridSymbols.O));
+            var playerTwo= new Player(playerTwoName,(GridSymbols.X));
             var grid = new GameGrid();
             grid.GridInit();
 
@@ -21,10 +27,20 @@ namespace NoughtsAndCrossesConsoleApp
 
     }
 
+    public class Player
+    {
+        public string PlayerName { get;  }
+        public GridSymbols PlayerSymbol { get;  }
 
+        public Player(string playerName, GridSymbols playerSymbol)
+        {
+            PlayerName = playerName;
+            PlayerSymbol = playerSymbol;
+        }
+    }
     public class GameGrid
     {
-        public string[,] Grid =new string[3,3];
+        private string[,] Grid =new string[3,3];
 
         public void GridInit()
         {
@@ -34,7 +50,7 @@ namespace NoughtsAndCrossesConsoleApp
                 {
                     Grid[i, j] = "~";
                 }
-            }s
+            }
         }
         public override string ToString()
         {
