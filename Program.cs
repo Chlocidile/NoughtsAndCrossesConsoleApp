@@ -14,8 +14,8 @@ namespace NoughtsAndCrossesConsoleApp
             var playerTwo= new Player(playerTwoName,(GridSymbols.X));
             var grid = new GameGrid();
             grid.GridInit();
-
-            Console.WriteLine((grid));
+            grid.PlayerMove(playerOne);
+            Console.WriteLine(grid);
 
         }
     }
@@ -51,6 +51,31 @@ namespace NoughtsAndCrossesConsoleApp
                     Grid[i, j] = "~";
                 }
             }
+        }
+
+        public void PlayerMove(Player player)
+        {
+            int totCount = 1;
+            Console.WriteLine($"{player.PlayerName}, Enter the position of where you want to go? (1-9)");
+            var userInputPosition = Console.ReadLine();
+            if (!int.TryParse(userInputPosition, out var position ))
+            {
+                Console.WriteLine("Please enter a valid number (1-9)");
+            }
+            for (var i = 0; i < 3; i++)
+            {
+                for (var j = 0; j < 3; j++)
+                {
+                    if (totCount == position)
+                    {
+                        Grid[i, j] = $"{ player.PlayerSymbol}";
+                    }
+
+                    totCount++;
+                }
+            }
+
+
         }
         public override string ToString()
         {
