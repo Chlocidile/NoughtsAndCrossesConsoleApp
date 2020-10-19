@@ -6,6 +6,7 @@ namespace NoughtsAndCrossesConsoleApp
     {
         static void Main(string[] args)
         {
+             var winner = false;
             Console.WriteLine("Enter your name Player One");
             var playerOneName = Console.ReadLine();
             Console.WriteLine("Enter your name Player Tne");
@@ -14,8 +15,16 @@ namespace NoughtsAndCrossesConsoleApp
             var playerTwo= new Player(playerTwoName,(GridSymbols.X));
             var grid = new GameGrid();
             grid.GridInit();
-            grid.PlayerMove(playerOne);
-            Console.WriteLine(grid);
+            while ( winner==false)
+            {
+                grid.PlayerMove(playerOne);
+                Console.Clear();
+                Console.WriteLine(grid);
+                grid.PlayerMove(playerTwo);
+                Console.Clear();
+                Console.WriteLine(grid);
+            }
+
 
         }
     }
@@ -55,26 +64,33 @@ namespace NoughtsAndCrossesConsoleApp
 
         public void PlayerMove(Player player)
         {
-            int totCount = 1;
-            Console.WriteLine($"{player.PlayerName}, Enter the position of where you want to go? (1-9)");
-            var userInputPosition = Console.ReadLine();
-            if (!int.TryParse(userInputPosition, out var position ))
+            var numberValdiation = false;
+            while (numberValdiation == false)
             {
-                Console.WriteLine("Please enter a valid number (1-9)");
-            }
-            for (var i = 0; i < 3; i++)
-            {
-                for (var j = 0; j < 3; j++)
-                {
-                    if (totCount == position)
-                    {
-                        Grid[i, j] = $"{ player.PlayerSymbol}";
-                    }
 
-                    totCount++;
+                int totCount = 1;
+                Console.WriteLine($"{player.PlayerName}, Enter the position of where you want to go? (1-9)");
+                var userInputPosition = Console.ReadLine();
+                if (!int.TryParse(userInputPosition, out var position))
+                {
+                    Console.WriteLine("Please enter a valid number (1-9)");
+                }
+
+                numberValdiation = true;
+
+                for (var i = 0; i < 3; i++)
+                {
+                    for (var j = 0; j < 3; j++)
+                    {
+                        if (totCount == position)
+                        {
+                            Grid[i, j] = $"{player.PlayerSymbol}";
+                        }
+
+                        totCount++;
+                    }
                 }
             }
-
 
         }
         public override string ToString()
