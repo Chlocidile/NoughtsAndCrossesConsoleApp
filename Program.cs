@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -16,73 +17,80 @@ namespace NoughtsAndCrossesConsoleApp
             var playerOneName = Console.ReadLine();
             Console.WriteLine("Enter your name Player Two");
             var playerTwoName = Console.ReadLine();
-            var playerOne= new Player(playerOneName,(GridSymbols.O),0);
-            var playerTwo= new Player(playerTwoName,(GridSymbols.X),0);
-            if (firstPerson == 1)
-            {
-                playerOne.FirstORSecond = 1;
-                playerTwo.FirstORSecond = 2;
-            }
-
-            if (firstPerson != 1)
-            {
-                playerOne.FirstORSecond = 2;
-                playerTwo.FirstORSecond = 1;
-            }
+            var playerOne = new Player(playerOneName, (GridSymbols.O), 0);
+            var playerTwo = new Player(playerTwoName, (GridSymbols.X), 0);
             var grid = new GameGrid();
-            var win = false;
             grid.GridInit();
             Console.WriteLine(grid);
-            while (win == false)
+            Thread.Sleep(1500);
+            while ((playerOne.Win == false) || (playerTwo.Win == false))
             {
-                for (var i = 1; i != 3; i++)
-                {
-                    if (i == 1)
-                    {
-                        grid.PlayerMove(playerOne);
-                        win = grid.WinChecks(playerOne);
-                        Console.WriteLine(grid);
-                    }
-
-                    if (i != 1)
-                    {
-                        grid.PlayerMove(playerTwo);
-                        win = grid.WinChecks(playerTwo);
-                        Console.WriteLine(grid);
-                    }
-
-
+                if (firstPerson == 1) 
+                {//player one first
+                    grid.PlayerMove(playerOne);
+                    Console.WriteLine(grid);
+                    Console.Clear();
+                    Console.WriteLine(grid);
+                    grid.PlayerMove(playerTwo);
+                    Console.WriteLine(grid);
+                    Console.Clear();
+                    Console.WriteLine(grid);
                 }
+                if (firstPerson != 1)
+                {//player two first
+                    grid.PlayerMove(playerTwo);
+                    Console.WriteLine(grid);
+                    Console.Clear();
+                    Console.WriteLine(grid);
+                    grid.PlayerMove(playerOne);
+                    Console.WriteLine(grid);
+                    Console.Clear();
+                    Console.WriteLine(grid);
+                }
+                
+
             }
+            
 
+            
+            
+               
+               
 
-
+            
         }
+
+
+
     }
+
 
     public enum GridSymbols
     {
-        X=1,
-        O=2,
-        U=3,
+        X = 1,
+        O = 2,
+        U = 3,
 
     }
 
     public class Player
     {
-        public string PlayerName { get;  }
-        public GridSymbols PlayerSymbol { get;  }
-        public int FirstORSecond { get; set; }
+        public string PlayerName { get; }
+        public GridSymbols PlayerSymbol { get; }
+        
+        public int Position { get; set; }
+        public bool Win { get; set; }
 
         public Player(string playerName, GridSymbols playerSymbol, int firstOrSecond)
         {
             PlayerName = playerName;
             PlayerSymbol = playerSymbol;
+            Win = false;
         }
     }
     public class GameGrid
     {
-        public GridSymbols [,] Grid =new GridSymbols[3,3];
+        public GridSymbols[,] Grid = new GridSymbols[3, 3];
         private int[] UsedSpaces = new int[0];
 
 
@@ -92,7 +100,7 @@ namespace NoughtsAndCrossesConsoleApp
             {
                 for (var j = 0; j < 3; j++)
                 {
-                    Grid[i, j] =  GridSymbols.U;
+                    Grid[i, j] = GridSymbols.U;
                 }
             }
 
@@ -103,7 +111,7 @@ namespace NoughtsAndCrossesConsoleApp
 
         }
 
-        public void PlayerMove(Player player)
+        public int[] PlayerMove(Player player)
         {
             int totCount = 1;
             var numberValdiation = false;
@@ -117,138 +125,137 @@ namespace NoughtsAndCrossesConsoleApp
                 if (!int.TryParse(userInputPosition, out position))
                 {
                     Console.WriteLine("Please enter a valid number (1-9)");
-                    continue;
+                    
                 }
-
-                if (UsedSpaces.Length == 0)
+                
+                player.Position = position;
+                Console.WriteLine(UsedSpaces.Length);
+                if (UsedSpaces.Length != 0)
                 {
-                    break;
-                }
-                for (var i = UsedSpaces.Length; i!=0; i--)
-                {
-                    if (UsedSpaces[i] == position)
+                    
+                    for (var i=0;i==(UsedSpaces.Length-1);i++)
                     {
-                        Console.WriteLine($"{player.PlayerName} please enter a number which hasn't been chosen from (1-9)");
+                        if (UsedSpaces[i] == player.Position)
+                        {
+                            Console.WriteLine($"{player.PlayerName} please enter a number which hasn't been chosen from (1-9)");
+
+                        }
+
+
 
                     }
-
-
-
+                    
                 }
+
                 numberValdiation = true;
+                
+                
             }
 
 
 
             for (var i = 0; i < 3; i++)
             {
-                    for (var j = 0; j < 3; j++)
-                    {
+                for (var j = 0; j < 3; j++)
+                {
 
-                        if (totCount == position)
+                    if (totCount == player.Position)
+                    {
+                      if (Grid[i, j] == GridSymbols.U) 
                         {
+                            numberValdiation = true;
                             Grid[i, j] = player.PlayerSymbol;
-                            UsedSpaces.Append(position);
-                            if (UsedSpaces.Length == 9)
+                            UsedSpaces.Append(player.Position);
+                            Console.WriteLine(UsedSpaces.Length);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"I am sorry {player.PlayerName} but someone has already gone there so please choose a different position");
+                            Thread.Sleep(1500);
+                            PlayerMove(player);
+                        }
+
+
+
+
+
+                        var noOfSpacesUsed = 0;
+                        for (var y = 0; y < 3; y++)
+                        {
+                            for (var x = 0; x < 3; x++)
+
                             {
-                                Console.WriteLine("GameOver!, No winner!");
-                                Thread.Sleep(1500);
-                                Environment.Exit(0);
+                                if ((Grid[y, x] == GridSymbols.X) || (Grid[y, x] == GridSymbols.O))
+                                { noOfSpacesUsed++; 
+                                }
                             }
                         }
-
-                        totCount++;
-                    }
-            }
-
-
-        }
-
-        public bool  WinChecks(Player player)
-        {
-            var win = false;
-            for (var i = 0; i < 3; i++)
-            {
-
-                if ((Grid[i, 0] == player.PlayerSymbol) & (Grid[i, 1] == player.PlayerSymbol) &
-                    (Grid[i, 2] == player.PlayerSymbol))
-                {
-                    switch (i)
-                    {
-                        case 0:
-                            Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Column");
-                            win = true;
-                            break;
-                        case 1:
-                            Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Column");
-                            win = true;
-                            break;
-                        case 2:
-                            Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Column");
-                            win = true;
-                            break;
-
-                    }
-
-                    ;
-                    if ((Grid[0, i] == player.PlayerSymbol) & (Grid[1, i] == player.PlayerSymbol) &
-                        (Grid[2, i] == player.PlayerSymbol))
-                    {
-                        switch (i)
+                        if (noOfSpacesUsed == 9)
                         {
-                            case 0:
-                                Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Row");
-                                win = true;
-                                break;
-                            case 1:
-                                Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Row");
-                                win = true;
-                                break;
-                            case 2:
-                                Console.WriteLine($"{player.PlayerName} won! they got three in a row in the First Row");
-                                win = true;
-                                break;
-
+                            Console.WriteLine("Game Over; its a tie!, no one wins!");
+                            Thread.Sleep(2500);
+                            Environment.Exit(0);
                         }
-
-                        if (((Grid[0, 0] == player.PlayerSymbol) & (Grid[1, 1] == player.PlayerSymbol) &
-                             (Grid[2, 2] == player.PlayerSymbol)) || ((Grid[2, 0] == player.PlayerSymbol) &
-                                                                      (Grid[1, 1] == player.PlayerSymbol) &
-                                                                      (Grid[0, 2] == player.PlayerSymbol)))
-                        {
-                            Console.WriteLine($"{player.PlayerName} won! They got three in a row diagonally");
-                            win = true;
-                        }
-
-
-
+                        //add change to for tie game over, checking each space, if a player symbol add
+                        Grid[i, j] = player.PlayerSymbol;
                     }
 
+                    totCount++;
 
                 }
             }
 
-            return win;
+            return UsedSpaces;
+            
+        }
+
+        public void WinChecks(Player player)
+        {
+             
+            
+                
+                for (var i = 0; i < 3; i++)
+                {
+                    if ((Grid[i, 0] == player.PlayerSymbol) && (Grid[i, 1] == player.PlayerSymbol)&&(Grid[i, 2] == player.PlayerSymbol))
+                    {
+                    player.Win = true;
+                    Console.WriteLine($"Congratulations {player.PlayerName}! You won with a Row!");
+                    }
+                if ((Grid[0, i] == player.PlayerSymbol) && (Grid[1, i] == player.PlayerSymbol) && (Grid[2, i] == player.PlayerSymbol))
+                {
+                    player.Win = true;
+                    Console.WriteLine($"Congratulations {player.PlayerName}! You won with a Row!");
+
+                }
 
 
+
+            }
+            
+
+            
         }
 
 
-
+       
 
 
         public override string ToString()
         {
+
             return $"({Grid[0, 0]}) | ({Grid[0, 1]}) | ({Grid[0, 2]}) {Environment.NewLine}" +
                    $"----|-----|-----{Environment.NewLine}" +
                    $"({Grid[1, 0]}) | ({Grid[1, 1]}) | ({Grid[1, 2]}) {Environment.NewLine}" +
                    $"----|-----|-----{Environment.NewLine}" +
                    $"({Grid[2, 0]}) | ({Grid[2, 1]}) | ({Grid[2, 2]}) {Environment.NewLine}";
+                   
+                        
 
         }
 
     }
-
-
-
 }
+
+
+
+
