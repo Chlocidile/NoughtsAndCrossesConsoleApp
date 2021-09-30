@@ -28,10 +28,14 @@ namespace NoughtsAndCrossesConsoleApp
                 if (firstPerson == 1) 
                 {//player one first
                     grid.PlayerMove(playerOne);
+                    grid.WinChecks(playerOne);
+                    if (playerOne.Win == true) { break; }
                     Console.WriteLine(grid);
                     Console.Clear();
                     Console.WriteLine(grid);
                     grid.PlayerMove(playerTwo);
+                    grid.WinChecks(playerTwo);
+                    if (playerTwo.Win == true) { break; }
                     Console.WriteLine(grid);
                     Console.Clear();
                     Console.WriteLine(grid);
@@ -39,10 +43,14 @@ namespace NoughtsAndCrossesConsoleApp
                 if (firstPerson != 1)
                 {//player two first
                     grid.PlayerMove(playerTwo);
+                    grid.WinChecks(playerTwo);
+                    if (playerTwo.Win == true) { break; }
                     Console.WriteLine(grid);
                     Console.Clear();
                     Console.WriteLine(grid);
                     grid.PlayerMove(playerOne);
+                    grid.WinChecks(playerOne);
+                    if (playerOne.Win == true) { break; }
                     Console.WriteLine(grid);
                     Console.Clear();
                     Console.WriteLine(grid);
@@ -50,8 +58,12 @@ namespace NoughtsAndCrossesConsoleApp
                 
 
             }
-            
+            Console.WriteLine($"Thank you {playerOne.PlayerName} and {playerTwo.PlayerName} for playing hope you had fun :)");
+            Thread.Sleep(1000);
+            return;
 
+
+            
             
             
                
@@ -116,11 +128,32 @@ namespace NoughtsAndCrossesConsoleApp
             int totCount = 1;
             var numberValdiation = false;
             var position = 0;
+            var noOfSpacesUsed = 0;
+            for (var y = 0; y < 3; y++)
+            {
+                for (var x = 0; x < 3; x++)
+
+                {
+                    if ((Grid[y, x] == GridSymbols.X) || (Grid[y, x] == GridSymbols.O))
+                    {
+                        noOfSpacesUsed++;
+                    }
+                }
+            }
+            if (noOfSpacesUsed == 9)
+            {
+                Console.WriteLine("Game Over; its a tie!, no one wins!");
+                Thread.Sleep(2500);
+                Environment.Exit(0);
+            }
             while (numberValdiation == false)
             {
 
 
                 Console.WriteLine($"{player.PlayerName}, Enter the position of where you want to go? (1-9)");
+                    /* 1|2|3
+                       4|5|6
+                       7|8|9*/ //the structure of choosing a position
                 var userInputPosition = Console.ReadLine();
                 if (!int.TryParse(userInputPosition, out position))
                 {
@@ -179,23 +212,7 @@ namespace NoughtsAndCrossesConsoleApp
 
 
 
-                        var noOfSpacesUsed = 0;
-                        for (var y = 0; y < 3; y++)
-                        {
-                            for (var x = 0; x < 3; x++)
-
-                            {
-                                if ((Grid[y, x] == GridSymbols.X) || (Grid[y, x] == GridSymbols.O))
-                                { noOfSpacesUsed++; 
-                                }
-                            }
-                        }
-                        if (noOfSpacesUsed == 9)
-                        {
-                            Console.WriteLine("Game Over; its a tie!, no one wins!");
-                            Thread.Sleep(2500);
-                            Environment.Exit(0);
-                        }
+                       
                         //add change to for tie game over, checking each space, if a player symbol add
                         Grid[i, j] = player.PlayerSymbol;
                     }
@@ -211,34 +228,49 @@ namespace NoughtsAndCrossesConsoleApp
 
         public void WinChecks(Player player)
         {
-             
-            
-                
-                for (var i = 0; i < 3; i++)
+            int firstDiagnolCheck = 0;
+            int secondDiagnolCheck = 0;
+            //One set at a time due to the fact if player 1 goes it doesnt affect if player 2 has won
+
+            for (var i = 0; i < 3; i++)
+            {
+                if ((Grid[i, 0] == player.PlayerSymbol) && (Grid[i, 1] == player.PlayerSymbol) && (Grid[i, 2] == player.PlayerSymbol))
                 {
-                    if ((Grid[i, 0] == player.PlayerSymbol) && (Grid[i, 1] == player.PlayerSymbol)&&(Grid[i, 2] == player.PlayerSymbol))
-                    {
                     player.Win = true;
                     Console.WriteLine($"Congratulations {player.PlayerName}! You won with a Row!");
-                    }
+                    break;
+                }
                 if ((Grid[0, i] == player.PlayerSymbol) && (Grid[1, i] == player.PlayerSymbol) && (Grid[2, i] == player.PlayerSymbol))
                 {
                     player.Win = true;
-                    Console.WriteLine($"Congratulations {player.PlayerName}! You won with a Row!");
+                    Console.WriteLine($"Congratulations {player.PlayerName}! You won with a column!");
+                    break;
 
                 }
+                if (Grid[i, i] == player.PlayerSymbol)
+                {
+                    firstDiagnolCheck++;
+                    if (firstDiagnolCheck == 3)
+                    {
+                        player.Win = true;
+                        Console.WriteLine($"Congratulations {player.PlayerName}! You won with a diagnol three in a row!");
+                        break;
+                    }
+                }  
+                if (Grid[i, 2 - i] == player.PlayerSymbol)
+                    {
+                     secondDiagnolCheck++;
+                     if (secondDiagnolCheck == 3)
+                      {
+                            player.Win = true;
+                            Console.WriteLine($"Congratulations {player.PlayerName}! You won with a diagnol three in a row!");
+                        break;
+                      }
 
-
-
-            }
-            
-
-            
-        }
-
-
+                }
        
-
+            }
+        }
 
         public override string ToString()
         {
@@ -248,9 +280,6 @@ namespace NoughtsAndCrossesConsoleApp
                    $"({Grid[1, 0]}) | ({Grid[1, 1]}) | ({Grid[1, 2]}) {Environment.NewLine}" +
                    $"----|-----|-----{Environment.NewLine}" +
                    $"({Grid[2, 0]}) | ({Grid[2, 1]}) | ({Grid[2, 2]}) {Environment.NewLine}";
-                   
-                        
-
         }
 
     }
